@@ -50,20 +50,19 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
         build_args = []
+        
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
 
-        # In this example, we pass in the version to C++. You might not need to.
-        cmake_args += [f"-DEXAMPLE_VERSION_INFO={self.distribution.get_version()}"]
+        # Pass version to CMake
+        cmake_args += [f"-DPYLIBBPF_VERSION_INFO={self.distribution.get_version()}"]
 
-        if self.compiler.compiler_type != "msvc":
+        # Linux-specific build configuration
+        if sys.platform.startswith("linux"):
             # Using Ninja-build since it a) is available as a wheel and b)
-            # multithreads automatically. MSVC would require all variables be
-            # exported for Ninja to pick it up, which is a little tricky to do.
-            # Users can override the generator with CMAKE_GENERATOR in CMake
-            # 3.15+.
+            # multithreads automatically.
             if not cmake_generator or cmake_generator == "Ninja":
                 try:
                     import ninja
@@ -76,31 +75,25 @@ class CMakeBuild(build_ext):
                 except ImportError:
                     pass
 
-        else:
-            # Single config generators are handled "normally"
-            single_config = any(x in cmake_generator for x in {"NMake", "Ninja"})
+            # Handle cross-compilation for different architectures on Linux
+            # This is useful for building ARM binaries on x86 systems or vice versa
+            target_arch = os.environ.get("TARGET_ARCH", "")
+            if target_arch:
+                if target_arch in ["arm64", "aarch64"]:
+                    cmake_args += [
+                        "-DCMAKE_SYSTEM_PROCESSOR=aarch64",
+                        "-DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc",
+                        "-DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++",
+                    ]
+                elif target_arch in ["arm", "armv7l"]:
+                    cmake_args += [
+                        "-DCMAKE_SYSTEM_PROCESSOR=arm",
+                        "-DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc",
+                        "-DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++",
+                    ]
 
-            # CMake allows an arch-in-generator style for backward compatibility
-            contains_arch = any(x in cmake_generator for x in {"ARM", "Win64"})
-
-            # Specify the arch if using MSVC generator, but only if it doesn't
-            # contain a backward-compatibility arch spec already in the
-            # generator name.
-            if not single_config and not contains_arch:
-                cmake_args += ["-A", PLAT_TO_CMAKE[self.plat_name]]
-
-            # Multi-config generators have a different way to specify configs
-            if not single_config:
-                cmake_args += [
-                    f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"
-                ]
-                build_args += ["--config", cfg]
-
-        if sys.platform.startswith("darwin"):
-            # Cross-compile support for macOS - respect ARCHFLAGS if set
-            archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
-            if archs:
-                cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
+        elif not sys.platform.startswith("linux"):
+            raise RuntimeError("pylibbpf is only supported on Linux platforms")
 
         # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level
         # across all generators.
@@ -123,18 +116,39 @@ class CMakeBuild(build_ext):
         )
 
 
-# The information here can also be placed in setup.cfg - better separation of
-# logic and declaration, and simpler if you include description/version in a file.
+# Read long description from README
+readme_path = Path(__file__).parent / "README.md"
+long_description = ""
+if readme_path.exists():
+    long_description = readme_path.read_text(encoding="utf-8")
+
 setup(
-    name="cmake_example",
+    name="pylibbpf",
     version="0.0.1",
-    author="Dean Moldovan",
-    author_email="dean0x7d@gmail.com",
-    description="A test project using pybind11 and CMake",
-    long_description="",
-    ext_modules=[CMakeExtension("cmake_example")],
+    author="varun-r-mallya, r41k0u",
+    author_email="varunrmallyagmail.com",
+    description="Python Bindings for Libbpf",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/varun-r-mallya/pylibbpf",
+    ext_modules=[CMakeExtension("pylibbpf")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: C++",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: System :: Operating System Kernels :: Linux",
+    ],
     extras_require={"test": ["pytest>=6.0"]},
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )

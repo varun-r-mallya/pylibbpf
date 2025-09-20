@@ -1,26 +1,5 @@
 # cmake_example for pybind11
 
-[![Gitter][gitter-badge]][gitter-link]
-
-|      CI              | status |
-|----------------------|--------|
-| MSVC 2019            | [![AppVeyor][appveyor-badge]][appveyor-link] |
-| conda.recipe         | [![Conda Actions Status][actions-conda-badge]][actions-conda-link] |
-| pip builds           | [![Pip Actions Status][actions-pip-badge]][actions-pip-link] |
-| [`cibuildwheel`][]   | [![Wheels Actions Status][actions-wheels-badge]][actions-wheels-link] |
-
-[gitter-badge]:            https://badges.gitter.im/pybind/Lobby.svg
-[gitter-link]:             https://gitter.im/pybind/Lobby
-[actions-badge]:           https://github.com/pybind/cmake_example/workflows/Tests/badge.svg
-[actions-conda-link]:      https://github.com/pybind/cmake_example/actions?query=workflow%3A%22Conda
-[actions-conda-badge]:     https://github.com/pybind/cmake_example/workflows/Conda/badge.svg
-[actions-pip-link]:        https://github.com/pybind/cmake_example/actions?query=workflow%3A%22Pip
-[actions-pip-badge]:       https://github.com/pybind/cmake_example/workflows/Pip/badge.svg
-[actions-wheels-link]:     https://github.com/pybind/cmake_example/actions?query=workflow%3AWheels
-[actions-wheels-badge]:    https://github.com/pybind/cmake_example/workflows/Wheels/badge.svg
-[appveyor-link]:           https://ci.appveyor.com/project/dean0x7d/cmake-example/branch/master
-[appveyor-badge]:          https://ci.appveyor.com/api/projects/status/57nnxfm4subeug43/branch/master?svg=true
-
 An example [pybind11](https://github.com/pybind/pybind11) module built with a
 CMake-based build system. This is useful for C++ codebases that have an
 existing CMake project structure. This is being replaced by
@@ -43,7 +22,7 @@ Problems vs. scikit-build-core based example:
 ## Prerequisites
 
 * A compiler with C++11 support
-* Pip 10+ or CMake >= 3.4 (or 3.14+ on Windows, which was the first version to support VS 2019)
+* Pip 10+ or CMake >= 4.1
 * Ninja or Pip 10+
 
 

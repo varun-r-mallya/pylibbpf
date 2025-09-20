@@ -1,11 +1,11 @@
 name: Wheels
-
 on:
   workflow_dispatch:
   pull_request:
   push:
     branches:
      - master
+     - main
   release:
     types:
       - published
@@ -18,64 +18,93 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-
+        
     - name: Build SDist
       run: pipx run build --sdist
-
+      
     - name: Check metadata
       run: pipx run twine check dist/*
-
+      
     - uses: actions/upload-artifact@v4
       with:
         name: cibw-sdist
         path: dist/*.tar.gz
 
-
   build_wheels:
-    name: Wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build wheels on Linux
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
-
+        # Build for both x86_64 and aarch64
+        arch: [x86_64, aarch64]
+        
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
-
-    - uses: pypa/cibuildwheel@v2.17
+        
+    # Set up QEMU for aarch64 emulation
+    - name: Set up QEMU
+      if: matrix.arch == 'aarch64'
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
+        
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v2.17
       env:
-        CIBW_ARCHS_MACOS: auto universal2
-
+        # Only build for Linux
+        CIBW_PLATFORM: linux
+        CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+        
+        # Python versions to build for
+        CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
+        CIBW_SKIP: "*-musllinux*"  # Skip musl builds, focus on glibc
+        
+        # Install system dependencies before building
+        CIBW_BEFORE_ALL_LINUX: >
+          yum install -y epel-release &&
+          yum install -y libbpf-devel kernel-headers ||
+          (apt-get update && apt-get install -y libbpf-dev linux-headers-generic)
+        
+        # Test the built wheels
+        CIBW_TEST_COMMAND: "python -c 'import pylibbpf; print(f\"pylibbpf {pylibbpf.__version__} imported successfully\")'"
+        
+        # Skip testing on emulated architectures (too slow)
+        CIBW_TEST_SKIP: "*-linux_aarch64"
+        
     - name: Verify clean directory
       run: git diff --exit-code
       shell: bash
-
+      
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}
+        name: cibw-wheels-linux-${{ matrix.arch }}
         path: wheelhouse/*.whl
 
-
   upload_all:
-    name: Upload if release
+    name: Upload to PyPI if release
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
-
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    environment:
+      name: pypi
+      # url: https://pypi.org/project/pylibbpf/${{ github.event.release.name }}
+      
     steps:
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.x"
-
-    - uses: actions/download-artifact@v4
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
       with:
         pattern: cibw-*
         path: dist
         merge-multiple: true
-
-    - uses: pypa/gh-action-pypi-publish@release/v1
+        
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.pypi_password }}
+        packages-dir: dist/

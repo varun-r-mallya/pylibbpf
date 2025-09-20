@@ -6,3 +6,6 @@ _generate/
 *.py[cod]
 *.egg-info
 *env*
+build/
+*venv/
+.idea/
