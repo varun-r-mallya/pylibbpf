@@ -35,10 +35,20 @@ elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "loongarch64")
   set(ARCH "loongarch")
 endif()
 
-set(LIBBPF_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/libbpf)
+set(LIBBPF_INCLUDE_DIRS
+    ${CMAKE_CURRENT_BINARY_DIR}/libbpf
+    ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include
+    ${CMAKE_CURRENT_BINARY_DIR}/libbpf/usr/include)
 set(LIBBPF_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libbpf/libbpf.a)
 
 # EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
 # define (VERSION_INFO) here.
 target_compile_definitions(pylibbpf
                            PRIVATE VERSION_INFO=${PYLIBBPF_VERSION_INFO})
+
+# ensure build order
+add_dependencies(pylibbpf libbpf)
+
+# headers + linking
+target_include_directories(pylibbpf PRIVATE ${LIBBPF_INCLUDE_DIRS})
+target_link_libraries(pylibbpf PRIVATE ${LIBBPF_LIBRARIES})
