@@ -36,7 +36,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Build for both x86_64 and aarch64
         arch: [x86_64, aarch64]
 
     steps:
@@ -47,24 +46,18 @@ jobs:
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.17
       env:
-        # Only build for Linux
         CIBW_PLATFORM: linux
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-
-        # Python versions to build for
         CIBW_BUILD: "cp38-* cp311-*"
-        CIBW_SKIP: "*-musllinux*"  # Skip musl builds, focus on glibc
-
-        # # Install minimal system dependencies before building
-        # CIBW_BEFORE_ALL_LINUX: >
-        #   yum install -y make gcc-c++ kernel-headers ||
-        #   (apt-get update && apt-get install -y build-essential linux-headers-generic)
-
-        # Test the built wheels
+        CIBW_SKIP: "*-musllinux*"
         CIBW_TEST_COMMAND: "python -c 'import pylibbpf; print(f\"pylibbpf {pylibbpf.__version__} imported successfully\")'"
-
-        # Skip testing on emulated architectures (too slow)
         CIBW_TEST_SKIP: "*-linux_aarch64"
+
+        CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+        CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
+
+        CIBW_BEFORE_ALL_LINUX: |
+          dnf install -y elfutils-libelf-devel zlib-devel
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -82,11 +75,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
-      # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
     environment:
       name: pypi
-      # url: https://pypi.org/project/pylibbpf/${{ github.event.release.name }}
 
     steps:
     - name: Download all artifacts
