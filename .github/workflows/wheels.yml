@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64, aarch64]
+        arch: [x86_64]
 
     steps:
     - uses: actions/checkout@v4
@@ -54,7 +54,6 @@ jobs:
         CIBW_TEST_SKIP: "*-linux_aarch64"
 
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-        CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
 
         CIBW_BEFORE_ALL_LINUX: |
           dnf install -y elfutils-libelf-devel zlib-devel
