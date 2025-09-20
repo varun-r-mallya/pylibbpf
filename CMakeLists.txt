@@ -41,4 +41,4 @@ set(LIBBPF_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libbpf/libbpf.a)
 # EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
 # define (VERSION_INFO) here.
 target_compile_definitions(pylibbpf
-                           PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
+                           PRIVATE VERSION_INFO=${PYLIBBPF_VERSION_INFO})

@@ -55,10 +55,10 @@ jobs:
         CIBW_BUILD: "cp38-* cp311-*"
         CIBW_SKIP: "*-musllinux*"  # Skip musl builds, focus on glibc
 
-        # Install minimal system dependencies before building
-        CIBW_BEFORE_ALL_LINUX: >
-          yum install -y make gcc-c++ kernel-headers ||
-          (apt-get update && apt-get install -y build-essential linux-headers-generic)
+        # # Install minimal system dependencies before building
+        # CIBW_BEFORE_ALL_LINUX: >
+        #   yum install -y make gcc-c++ kernel-headers ||
+        #   (apt-get update && apt-get install -y build-essential linux-headers-generic)
 
         # Test the built wheels
         CIBW_TEST_COMMAND: "python -c 'import pylibbpf; print(f\"pylibbpf {pylibbpf.__version__} imported successfully\")'"
