@@ -16,7 +16,7 @@ authors = [
     { name = "varun-r-mallya", email = "varunrmallya@gmail.com" }
 ]
 readme = "README.md"
-license = "Apache-2.0"
+license = { file = "LICENSE" }
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 3 - Alpha",
