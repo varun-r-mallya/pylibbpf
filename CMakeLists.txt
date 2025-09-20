@@ -4,10 +4,9 @@ project(pylibbpf)
 add_subdirectory(pybind11)
 pybind11_add_module(pylibbpf src/main.cpp)
 
-# Build vendored libbpf
 include(ExternalProject)
 ExternalProject_Add(
-  libbpf
+  libbpf_build
   PREFIX libbpf
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src
   CONFIGURE_COMMAND ""
@@ -19,36 +18,22 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   STEP_TARGETS build)
 
-if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
-  set(ARCH "x86")
-elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-  set(ARCH "arm")
-elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
-  set(ARCH "arm64")
-elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "ppc64le")
-  set(ARCH "powerpc")
-elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "mips")
-  set(ARCH "mips")
-elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "riscv64")
-  set(ARCH "riscv")
-elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "loongarch64")
-  set(ARCH "loongarch")
-endif()
+# Define a static library target pointing to the built libbpf.a
+add_library(libbpf_static STATIC IMPORTED GLOBAL)
 
-set(LIBBPF_INCLUDE_DIRS
-    ${CMAKE_CURRENT_BINARY_DIR}/libbpf
-    ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include
-    ${CMAKE_CURRENT_BINARY_DIR}/libbpf/usr/include)
-set(LIBBPF_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libbpf/libbpf.a)
+set(LIBBPF_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include)
 
-# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
-# define (VERSION_INFO) here.
+set_target_properties(
+  libbpf_static
+  PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/libbpf/libbpf.a"
+             INTERFACE_INCLUDE_DIRECTORIES "${LIBBPF_INCLUDE_DIRS}")
+# Ensure build order: external project builds before linking
+add_dependencies(libbpf_static libbpf_build)
+add_dependencies(pylibbpf libbpf_static)
+
+# Version info
 target_compile_definitions(pylibbpf
                            PRIVATE VERSION_INFO=${PYLIBBPF_VERSION_INFO})
 
-# ensure build order
-add_dependencies(pylibbpf libbpf)
-
-# headers + linking
-target_include_directories(pylibbpf PRIVATE ${LIBBPF_INCLUDE_DIRS})
-target_link_libraries(pylibbpf PRIVATE ${LIBBPF_LIBRARIES})
+# Link the actual library target
+target_link_libraries(pylibbpf PRIVATE libbpf_static)
