@@ -44,13 +44,6 @@ jobs:
       with:
         submodules: true
 
-    # Set up QEMU for aarch64 emulation
-    - name: Set up QEMU
-      if: matrix.arch == 'aarch64'
-      uses: docker/setup-qemu-action@v3
-      with:
-        platforms: arm64
-
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.17
       env:
@@ -59,14 +52,13 @@ jobs:
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
 
         # Python versions to build for
-        CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
+        CIBW_BUILD: "cp38-* cp311-*"
         CIBW_SKIP: "*-musllinux*"  # Skip musl builds, focus on glibc
 
-        # Install system dependencies before building
+        # Install minimal system dependencies before building
         CIBW_BEFORE_ALL_LINUX: >
-          yum install -y epel-release &&
-          yum install -y libbpf-devel kernel-headers ||
-          (apt-get update && apt-get install -y libbpf-dev linux-headers-generic)
+          yum install -y make gcc-c++ kernel-headers ||
+          (apt-get update && apt-get install -y build-essential linux-headers-generic)
 
         # Test the built wheels
         CIBW_TEST_COMMAND: "python -c 'import pylibbpf; print(f\"pylibbpf {pylibbpf.__version__} imported successfully\")'"

@@ -16,12 +16,11 @@ authors = [
     { name = "varun-r-mallya", email = "varunrmallya@gmail.com" }
 ]
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -63,31 +62,6 @@ filterwarnings = [
     "ignore:(ast.Str|Attribute s|ast.NameConstant|ast.Num) is deprecated:DeprecationWarning:_pytest",
 ]
 testpaths = ["tests"]
-
-[tool.cibuildwheel]
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*"]
-skip = ["*-win32", "*-win_amd64", "*-macosx*", "pp*"]
-
-# Build for both x86_64 and aarch64 on Linux
-archs = ["x86_64", "aarch64"]
-
-# Linux-specific settings
-[tool.cibuildwheel.linux]
-before-all = [
-    "yum install -y epel-release || apt-get update",
-    "yum install -y libbpf-devel kernel-headers || apt-get install -y libbpf-dev linux-headers-generic",
-]
-
-# Skip testing on emulated architectures (too slow)
-test-skip = ["*_aarch64", "*_arm64"]
-
-# Test command for supported architectures
-test-command = "pytest {project}/tests"
-test-extras = ["test"]
-
-before-build = "rm -rf {project}/build"
-
-environment = { CMAKE_BUILD_PARALLEL_LEVEL = "2" }
 
 [tool.ruff]
 target-version = "py38"
