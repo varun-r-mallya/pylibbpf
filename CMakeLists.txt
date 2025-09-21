@@ -24,9 +24,11 @@ add_custom_target(libbpf_build ALL DEPENDS ${LIBBPF_A})
 add_library(libbpf_static STATIC IMPORTED GLOBAL)
 set_target_properties(
   libbpf_static
-  PROPERTIES IMPORTED_LOCATION ${LIBBPF_A}
-             INTERFACE_INCLUDE_DIRECTORIES
-             ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include)
+  PROPERTIES
+    IMPORTED_LOCATION ${LIBBPF_A}
+    INTERFACE_INCLUDE_DIRECTORIES
+    "${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include;${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src"
+)
 
 add_dependencies(libbpf_static libbpf_build)
 

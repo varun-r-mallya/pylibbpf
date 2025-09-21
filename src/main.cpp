@@ -3,7 +3,7 @@
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
 extern "C" {
-#include "bpf/libbpf.h"
+#include "libbpf.h"
 }
 
 int add(int i, int j) {
