@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <utility>
 
-BpfProgram::BpfProgram(std::string  object_path, std::string  program_name)
+BpfProgram::BpfProgram(std::string object_path, std::string program_name)
     : obj_(nullptr), prog_(nullptr), link_(nullptr),
       object_path_(std::move(object_path)), program_name_(std::move(program_name)) {
 }
@@ -13,6 +13,10 @@ BpfProgram::~BpfProgram() {
     if (obj_) {
         bpf_object__close(obj_);
     }
+}
+
+struct bpf_object * BpfProgram::get_obj() const {
+    return obj_;
 }
 
 bool BpfProgram::load() {
@@ -48,8 +52,7 @@ bool BpfProgram::load() {
 }
 
 bool BpfProgram::attach() {
-    for (auto [prog, link] : programs)
-    {
+    for (auto [prog, link]: programs) {
         if (!prog) {
             throw BpfException("Program not loaded");
         }
@@ -66,7 +69,7 @@ bool BpfProgram::attach() {
 
 bool BpfProgram::destroy() {
     bool success = true;
-    for (auto [prog, link] : programs) {
+    for (auto [prog, link]: programs) {
         if (!prog) {
             throw BpfException("Program not loaded");
         }

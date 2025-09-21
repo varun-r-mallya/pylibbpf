@@ -1,6 +1,7 @@
 import time
 from ctypes import c_int32, c_int64, c_uint64, c_void_p
 
+from pylibbpf import BpfMap
 from pythonbpf import BPF, bpf, bpfglobal, map, section
 from pythonbpf.maps import HashMap
 
@@ -8,7 +9,7 @@ from pythonbpf.maps import HashMap
 @bpf
 @map
 def last() -> HashMap:
-    return HashMap(key=c_uint64, value=c_uint64, max_entries=1)
+    return HashMap(key=c_uint64, value=c_uint64, max_entries=3)
 
 
 @bpf
@@ -37,6 +38,17 @@ def LICENSE() -> str:
 
 b = BPF()
 b.load_and_attach()
+mp = BpfMap(b, last)
+mp[42] = 100  # Update entry
+value = mp[42]  # Lookup entry
+del mp[42]  # Delete entry
+mp[69] = 420
+mp[31] = 42
+mp[21] = 34
+print(mp.items())
+# Iterate through map
+for key in mp.keys():
+    print(mp[key])
 while True:
     print("running")
     time.sleep(1)

@@ -4,8 +4,14 @@ project(pylibbpf)
 # pybind11
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(pybind11)
-pybind11_add_module(pylibbpf src/core/bpf_program.h src/core/bpf_exception.h
-                    src/bindings/main.cpp src/core/bpf_program.cpp)
+pybind11_add_module(
+  pylibbpf
+  src/core/bpf_program.h
+  src/core/bpf_exception.h
+  src/core/bpf_map.h
+  src/bindings/main.cpp
+  src/core/bpf_program.cpp
+  src/core/bpf_map.cpp)
 
 # --- libbpf build rules ---
 set(LIBBPF_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src)
