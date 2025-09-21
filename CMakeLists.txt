@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 3.16) # 4.0 does not exist
+cmake_minimum_required(VERSION 4.0)
 project(pylibbpf)
 
 # pybind11
+include_directories(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(pybind11)
-pybind11_add_module(pylibbpf src/main.cpp)
+pybind11_add_module(pylibbpf src/core/bpf_program.h src/core/bpf_exception.h
+                    src/bindings/main.cpp src/core/bpf_program.cpp)
 
 # --- libbpf build rules ---
 set(LIBBPF_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src)
@@ -12,8 +14,8 @@ set(LIBBPF_A ${LIBBPF_BUILD_DIR}/libbpf.a)
 
 add_custom_command(
   OUTPUT ${LIBBPF_A}
-  COMMAND make BUILD_STATIC_ONLY=1 OBJDIR=${LIBBPF_BUILD_DIR} -C
-          ${LIBBPF_SRC_DIR}
+  COMMAND make BUILD_STATIC_ONLY=1 OBJDIR=${LIBBPF_BUILD_DIR} CFLAGS="-fPIC"
+          LDFLAGS="-fPIC" -C ${LIBBPF_SRC_DIR}
   WORKING_DIRECTORY ${LIBBPF_SRC_DIR}
   COMMENT "Building libbpf.a"
   VERBATIM)
@@ -33,7 +35,7 @@ set_target_properties(
 add_dependencies(libbpf_static libbpf_build)
 
 # Link pybind11 module against libbpf
-target_link_libraries(pylibbpf PRIVATE libbpf_static)
+target_link_libraries(pylibbpf PRIVATE libbpf_static elf)
 
 # Version info for Python extension
 target_compile_definitions(pylibbpf
