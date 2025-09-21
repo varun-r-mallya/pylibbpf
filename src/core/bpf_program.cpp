@@ -9,7 +9,7 @@ BpfProgram::BpfProgram(std::string  object_path, std::string  program_name)
 }
 
 BpfProgram::~BpfProgram() {
-    //TODO: detach here as well
+    destroy();
     if (obj_) {
         bpf_object__close(obj_);
     }
@@ -62,6 +62,17 @@ bool BpfProgram::attach() {
     }
 
     return true;
+}
+
+bool BpfProgram::destroy() {
+    bool success = true;
+    for (auto [prog, link] : programs) {
+        if (!prog) {
+            throw BpfException("Program not loaded");
+        }
+        success = success & bpf_link__destroy(link);
+    }
+    return success;
 }
 
 void BpfProgram::load_and_attach() {

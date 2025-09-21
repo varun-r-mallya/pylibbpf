@@ -21,6 +21,7 @@ public:
 
     bool load();
     bool attach();
+    bool destroy();
     void load_and_attach();
 
     [[nodiscard]] bool is_loaded() const { return obj_ != nullptr; }
