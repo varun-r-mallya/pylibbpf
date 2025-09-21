@@ -1,8 +1,9 @@
-from pythonbpf import bpf, map, section, bpfglobal, BPF
-from ctypes import c_void_p, c_int64, c_int32, c_uint64
-from pythonbpf.helpers import ktime
-from pythonbpf.maps import HashMap
 import time
+from ctypes import c_int32, c_int64, c_uint64, c_void_p
+
+from pythonbpf import BPF, bpf, bpfglobal, map, section
+from pythonbpf.maps import HashMap
+
 
 @bpf
 @map
@@ -25,7 +26,6 @@ def hello_again(ctx: c_void_p) -> c_int64:
     key = 0
     tsp = last().lookup(key)
     print(tsp)
-    ts = ktime()
     return c_int64(0)
 
 
@@ -33,6 +33,7 @@ def hello_again(ctx: c_void_p) -> c_int64:
 @bpfglobal
 def LICENSE() -> str:
     return "GPL"
+
 
 b = BPF()
 b.load_and_attach()
