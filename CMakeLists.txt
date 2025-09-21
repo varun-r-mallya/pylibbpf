@@ -1,39 +1,38 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.16) # 4.0 does not exist
 project(pylibbpf)
 
+# pybind11
 add_subdirectory(pybind11)
 pybind11_add_module(pylibbpf src/main.cpp)
 
-include(ExternalProject)
-ExternalProject_Add(
-  libbpf_build
-  PREFIX libbpf
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND
-    make BUILD_STATIC_ONLY=1 OBJDIR=${CMAKE_CURRENT_BINARY_DIR}/libbpf/libbpf
-    DESTDIR=${CMAKE_CURRENT_BINARY_DIR}/libbpf INCLUDEDIR= LIBDIR= UAPIDIR=
-    install install_uapi_headers
-  BUILD_IN_SOURCE TRUE
-  INSTALL_COMMAND ""
-  STEP_TARGETS build)
+# --- libbpf build rules ---
+set(LIBBPF_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src)
+set(LIBBPF_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/libbpf)
+set(LIBBPF_A ${LIBBPF_BUILD_DIR}/libbpf.a)
 
-# Define a static library target pointing to the built libbpf.a
+add_custom_command(
+  OUTPUT ${LIBBPF_A}
+  COMMAND make BUILD_STATIC_ONLY=1 OBJDIR=${LIBBPF_BUILD_DIR} -C
+          ${LIBBPF_SRC_DIR}
+  WORKING_DIRECTORY ${LIBBPF_SRC_DIR}
+  COMMENT "Building libbpf.a"
+  VERBATIM)
+
+add_custom_target(libbpf_build ALL DEPENDS ${LIBBPF_A})
+
+# Define static lib as imported
 add_library(libbpf_static STATIC IMPORTED GLOBAL)
-
-set(LIBBPF_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include)
-
 set_target_properties(
   libbpf_static
-  PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/libbpf/libbpf.a"
-             INTERFACE_INCLUDE_DIRECTORIES "${LIBBPF_INCLUDE_DIRS}")
-# Ensure build order: external project builds before linking
-add_dependencies(libbpf_static libbpf_build)
-add_dependencies(pylibbpf libbpf_static)
+  PROPERTIES IMPORTED_LOCATION ${LIBBPF_A}
+             INTERFACE_INCLUDE_DIRECTORIES
+             ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/include)
 
-# Version info
+add_dependencies(libbpf_static libbpf_build)
+
+# Link pybind11 module against libbpf
+target_link_libraries(pylibbpf PRIVATE libbpf_static)
+
+# Version info for Python extension
 target_compile_definitions(pylibbpf
                            PRIVATE VERSION_INFO=${PYLIBBPF_VERSION_INFO})
-
-# Link the actual library target
-target_link_libraries(pylibbpf PRIVATE libbpf_static)
