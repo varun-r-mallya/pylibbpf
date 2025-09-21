@@ -1,10 +1,11 @@
 #include "bpf_program.h"
 #include "bpf_exception.h"
 #include <filesystem>
+#include <utility>
 
-BpfProgram::BpfProgram(const std::string& object_path, const std::string& program_name)
+BpfProgram::BpfProgram(std::string  object_path, std::string  program_name)
     : obj_(nullptr), prog_(nullptr), link_(nullptr),
-      object_path_(object_path), program_name_(program_name) {
+      object_path_(std::move(object_path)), program_name_(std::move(program_name)) {
 }
 
 BpfProgram::~BpfProgram() {
@@ -28,9 +29,12 @@ bool BpfProgram::load() {
             throw BpfException("Program '" + program_name_ + "' not found in object");
         }
     } else {
-        // Use the first program if no name specified
-        prog_ = bpf_object__next_program(obj_, nullptr);
-        if (!prog_) {
+        while ((prog_ = bpf_object__next_program(obj_, prog_)) != nullptr) {
+            programs.emplace_back(prog_, nullptr);
+        }
+
+        // throw if no programs found
+        if (programs.empty()) {
             throw BpfException("No programs found in object file");
         }
     }
@@ -44,15 +48,23 @@ bool BpfProgram::load() {
 }
 
 bool BpfProgram::attach() {
-    if (!prog_) {
-        throw BpfException("Program not loaded");
-    }
+    for (auto [prog, link] : programs)
+    {
+        if (!prog) {
+            throw BpfException("Program not loaded");
+        }
 
-    link_ = bpf_program__attach(prog_);
-    if (libbpf_get_error(link_)) {
-        link_ = nullptr;
-        throw BpfException("Failed to attach BPF program");
+        link = bpf_program__attach(prog);
+        if (libbpf_get_error(link)) {
+            link = nullptr;
+            throw BpfException("Failed to attach BPF program");
+        }
     }
 
     return true;
+}
+
+void BpfProgram::load_and_attach() {
+    load();
+    attach();
 }

@@ -9,3 +9,4 @@ _generate/
 build/
 *venv/
 .idea/
+sudo-python.sh

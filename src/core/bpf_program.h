@@ -14,16 +14,17 @@ private:
     struct bpf_link* link_;
     std::string object_path_;
     std::string program_name_;
-
+    std::vector<std::pair<bpf_program*, bpf_link*>> programs;
 public:
-    explicit BpfProgram(const std::string& object_path, const std::string& program_name = "");
+    explicit BpfProgram(std::string  object_path, std::string  program_name = "");
     ~BpfProgram();
 
     bool load();
     bool attach();
+    void load_and_attach();
 
-    bool is_loaded() const { return obj_ != nullptr; }
-    bool is_attached() const { return link_ != nullptr; }
+    [[nodiscard]] bool is_loaded() const { return obj_ != nullptr; }
+    [[nodiscard]] bool is_attached() const { return link_ != nullptr; }
 };
 
 #endif //PYLIBBPF_BPF_PROGRAM_H

@@ -33,6 +33,7 @@ PYBIND11_MODULE(pylibbpf, m) {
      .def("load", &BpfProgram::load)
      .def("attach", &BpfProgram::attach)
      // .def("detach", &BpfProgram::detach)
+     .def("load_and_attach", &BpfProgram::load_and_attach)
      .def("is_loaded", &BpfProgram::is_loaded)
      .def("is_attached", &BpfProgram::is_attached);
 
