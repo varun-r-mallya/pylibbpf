@@ -15,7 +15,7 @@ jobs:
     name: Build SDist
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: true
 
@@ -39,12 +39,12 @@ jobs:
         arch: [x86_64]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: true
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.17
+      uses: pypa/cibuildwheel@v3.2
       env:
         CIBW_PLATFORM: linux
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
@@ -80,7 +80,7 @@ jobs:
 
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         pattern: cibw-*
         path: dist
