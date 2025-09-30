@@ -11,8 +11,8 @@
   <a href="https://github.com/pythonbpf/pylibbpf/blob/master/LICENSE"><img src="https://img.shields.io/github/license/pythonbpf/pylibbpf" alt="License"></a>
 </p>
 
-This library provides Python bindings for **libbpf** on Linux, making it easier to load eBPF object files. It is designed to be used together with [PythonBPF](https://github.com/pythonbpf/python-bpf), the eBPF compiler for Python. With these bindings, you can attach eBPF programs to kernel events directly from Python.  
-All programs written with this are to be run with a `sudo` Python interpreter. 
+This library provides Python bindings for **libbpf** on Linux, making it easier to load eBPF object files. It is designed to be used together with [PythonBPF](https://github.com/pythonbpf/python-bpf), the eBPF compiler for Python. With these bindings, you can attach eBPF programs to kernel events directly from Python.
+All programs written with this are to be run with a `sudo` Python interpreter.
 
 > **Note**: This project is under active development and not ready for production use.
 
