@@ -1,4 +1,14 @@
-<img src="https://github.com/user-attachments/assets/9e873d60-a834-4411-bc0c-361b14502f8b" alt="pylibbpf" width="450">
+<picture>
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="https://github.com/user-attachments/assets/dbd56f5b-4512-4c82-a404-30bce0ee5207"
+    width="450"
+    alt="pylibbpf light mode">
+  <img
+    src="https://github.com/user-attachments/assets/9e873d60-a834-4411-bc0c-361b14502f8b"
+    width="450"
+    alt="pylibbpf dark mode">
+</picture>
 <p align="center">
   <!-- PyPI -->
   <a href="https://www.python.org/downloads/release/python-3080/"><img src="https://img.shields.io/badge/python-3.8-blue.svg"></a>
