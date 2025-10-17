@@ -28,6 +28,9 @@ private:
     mutable std::unordered_map<std::string, std::shared_ptr<BpfMap>> maps_cache_;
     mutable std::unordered_map<std::string, std::shared_ptr<BpfProgram>> prog_cache_;
 
+    std::shared_ptr<BpfProgram> _get_or_create_program(struct bpf_program *prog);
+    std::shared_ptr<BpfMap> _get_or_create_map(struct bpf_map *map);
+
 public:
     explicit BpfObject(std::string object_path);
     ~BpfObject();
@@ -64,13 +67,13 @@ public:
     [[nodiscard]] py::list get_program_names() const;
     [[nodiscard]] std::shared_ptr<BpfProgram> get_program(const std::string& name);
     [[nodiscard]] struct bpf_program* find_program_by_name(const std::string& name) const;
-    [[nodiscard]] py::dict get_programs() const;
+    [[nodiscard]] py::dict get_cached_programs() const;
     
     // Map access
     [[nodiscard]] py::list get_map_names() const;
     [[nodiscard]] std::shared_ptr<BpfMap> get_map(const std::string& name);
     [[nodiscard]] struct bpf_map* find_map_by_name(const std::string& name) const;
-    [[nodiscard]] py::dict get_maps() const;
+    [[nodiscard]] py::dict get_cached_maps() const;
 };
 
 #endif // PYLIBBPF_BPF_OBJECT_H
