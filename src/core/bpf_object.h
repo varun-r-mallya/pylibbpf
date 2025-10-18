@@ -19,7 +19,7 @@ class BpfMap;
  * This is the main entry point for loading BPF programs.
  * Owns the bpf_object* and manages all programs and maps within it.
  */
-class BpfObject {
+class BpfObject : public std::enable_shared_from_this<BpfObject> {
 private:
     struct bpf_object *obj_;
     std::string object_path_;

@@ -206,7 +206,7 @@ std::shared_ptr<BpfMap> BpfObject::get_map(const std::string& name) {
     
     // Create and cache
     struct bpf_map *raw_map = find_map_by_name(name);
-    auto map = std::make_shared<BpfMap>(this, raw_map, name);
+    auto map = std::make_shared<BpfMap>(shared_from_this(), raw_map, name);
     maps_cache_[name] = map;
     
     return map;
@@ -227,7 +227,7 @@ std::shared_ptr<BpfMap> BpfObject::_get_or_create_map(struct bpf_map *map) {
     }
     
     // Create and cache
-    auto bpf_map = std::make_shared<BpfMap>(this, map, map_name);
+    auto bpf_map = std::make_shared<BpfMap>(shared_from_this(), map, map_name);
     maps_cache_[map_name] = bpf_map;
     
     return bpf_map;

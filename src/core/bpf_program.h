@@ -3,36 +3,35 @@
 
 #include <libbpf.h>
 #include <pybind11/stl.h>
+#include <memory>
 #include <string>
 
-namespace py = pybind11;
+class BpfObject;
 
 class BpfProgram {
 private:
-    struct bpf_object *obj_;
+    std::weak_ptr<BpfObject> parent_obj_;
     struct bpf_program *prog_;
     struct bpf_link *link_;
-    std::string object_path_;
     std::string program_name_;
-    std::vector<std::pair<bpf_program *, bpf_link *> > programs;
 
 public:
-    explicit BpfProgram(std::string object_path, std::string program_name = "");
+    explicit BpfProgram(std::shared_ptr<BpfObject> parent, struct bpf_program *raw_prog, std::string program_name = "");
 
     ~BpfProgram();
 
-    struct bpf_object *get_obj() const;
-
-    bool load();
+    BpfProgram(const BpfProgram&) = delete;
+    BpfProgram& operator=(const BpfProgram&) = delete;
+    BpfProgram(BpfProgram&&) noexcept;
+    BpfProgram& operator=(BpfProgram&&) noexcept;
 
     bool attach();
-
-    bool destroy();
+    bool detach();
 
     void load_and_attach();
 
-    [[nodiscard]] bool is_loaded() const { return obj_ != nullptr; }
     [[nodiscard]] bool is_attached() const { return link_ != nullptr; }
+    [[nodiscard]] std::string get_name() const { return program_name_; }
 };
 
 #endif //PYLIBBPF_BPF_PROGRAM_H
