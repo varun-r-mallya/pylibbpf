@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.31)
 project(pylibbpf)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -13,9 +13,13 @@ pybind11_add_module(
   src/core/bpf_program.h
   src/core/bpf_exception.h
   src/core/bpf_map.h
+  src/core/bpf_object.h
+  src/core/bpf_perf_buffer.h
   src/bindings/main.cpp
   src/core/bpf_program.cpp
-  src/core/bpf_map.cpp)
+  src/core/bpf_map.cpp
+  src/core/bpf_object.cpp
+  src/core/bpf_perf_buffer.cpp)
 
 # --- libbpf build rules ---
 set(LIBBPF_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src)
