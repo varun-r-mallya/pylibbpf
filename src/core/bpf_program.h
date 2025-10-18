@@ -9,26 +9,28 @@ class BpfObject;
 
 class BpfProgram {
 private:
-    std::weak_ptr<BpfObject> parent_obj_;
-    struct bpf_program *prog_;
-    struct bpf_link *link_;
-    std::string program_name_;
+  std::weak_ptr<BpfObject> parent_obj_;
+  struct bpf_program *prog_;
+  struct bpf_link *link_;
+  std::string program_name_;
 
 public:
-    explicit BpfProgram(std::shared_ptr<BpfObject> parent, struct bpf_program *raw_prog, const std::string& program_name);
+  explicit BpfProgram(std::shared_ptr<BpfObject> parent,
+                      struct bpf_program *raw_prog,
+                      const std::string &program_name);
 
-    ~BpfProgram();
+  ~BpfProgram();
 
-    BpfProgram(const BpfProgram&) = delete;
-    BpfProgram& operator=(const BpfProgram&) = delete;
-    BpfProgram(BpfProgram&&) noexcept;
-    BpfProgram& operator=(BpfProgram&&) noexcept;
+  BpfProgram(const BpfProgram &) = delete;
+  BpfProgram &operator=(const BpfProgram &) = delete;
+  BpfProgram(BpfProgram &&) noexcept;
+  BpfProgram &operator=(BpfProgram &&) noexcept;
 
-    bool attach();
-    bool detach();
+  bool attach();
+  bool detach();
 
-    [[nodiscard]] bool is_attached() const { return link_ != nullptr; }
-    [[nodiscard]] std::string get_name() const { return program_name_; }
+  [[nodiscard]] bool is_attached() const { return link_ != nullptr; }
+  [[nodiscard]] std::string get_name() const { return program_name_; }
 };
 
-#endif //PYLIBBPF_BPF_PROGRAM_H
+#endif // PYLIBBPF_BPF_PROGRAM_H
