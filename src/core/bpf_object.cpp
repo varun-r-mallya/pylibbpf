@@ -65,7 +65,7 @@ void BpfObject::load() {
     }
     
     if (bpf_object__load(obj_)) {
-	std::string error_msg = " object from file '" + object_path_ + "': " + std::strerror(errno);
+	error_msg += " object from file '" + object_path_ + "': " + std::strerror(errno);
         bpf_object__close(obj_);
         obj_ = nullptr;
         throw BpfException(error_msg);

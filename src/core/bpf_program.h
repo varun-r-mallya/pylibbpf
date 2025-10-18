@@ -16,7 +16,7 @@ private:
     std::string program_name_;
 
 public:
-    explicit BpfProgram(std::shared_ptr<BpfObject> parent, struct bpf_program *raw_prog, std::string program_name = "");
+    explicit BpfProgram(std::shared_ptr<BpfObject> parent, struct bpf_program *raw_prog, const std::string& program_name);
 
     ~BpfProgram();
 
@@ -27,8 +27,6 @@ public:
 
     bool attach();
     bool detach();
-
-    void load_and_attach();
 
     [[nodiscard]] bool is_attached() const { return link_ != nullptr; }
     [[nodiscard]] std::string get_name() const { return program_name_; }
