@@ -2,7 +2,6 @@
 #define PYLIBBPF_BPF_PROGRAM_H
 
 #include <libbpf.h>
-#include <pybind11/stl.h>
 #include <memory>
 #include <string>
 
