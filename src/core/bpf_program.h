@@ -4,6 +4,7 @@
 #include <libbpf.h>
 #include <memory>
 #include <string>
+#include <cstring>
 
 class BpfObject;
 
@@ -26,8 +27,8 @@ public:
   BpfProgram(BpfProgram &&) noexcept;
   BpfProgram &operator=(BpfProgram &&) noexcept;
 
-  bool attach();
-  bool detach();
+  void attach();
+  void detach();
 
   [[nodiscard]] bool is_attached() const { return link_ != nullptr; }
   [[nodiscard]] std::string get_name() const { return program_name_; }
