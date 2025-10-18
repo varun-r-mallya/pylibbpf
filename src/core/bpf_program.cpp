@@ -1,6 +1,6 @@
-#include "bpf_object.h"
 #include "bpf_program.h"
 #include "bpf_exception.h"
+#include "bpf_object.h"
 #include <cerrno>
 #include <utility>
 

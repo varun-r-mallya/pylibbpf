@@ -1,10 +1,10 @@
 #ifndef PYLIBBPF_BPF_PROGRAM_H
 #define PYLIBBPF_BPF_PROGRAM_H
 
+#include <cstring>
 #include <libbpf.h>
 #include <memory>
 #include <string>
-#include <cstring>
 
 class BpfObject;
 

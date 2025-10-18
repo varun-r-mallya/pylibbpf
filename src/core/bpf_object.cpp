@@ -106,7 +106,8 @@ BpfObject::_get_or_create_program(struct bpf_program *prog) {
   }
 
   // Create and cache
-  auto bpf_prog = std::make_shared<BpfProgram>(shared_from_this(), prog, prog_name);
+  auto bpf_prog =
+      std::make_shared<BpfProgram>(shared_from_this(), prog, prog_name);
   prog_cache_[prog_name] = bpf_prog;
 
   return bpf_prog;
