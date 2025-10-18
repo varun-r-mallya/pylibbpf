@@ -74,7 +74,7 @@ void BpfObject::load() {
 
 // ==================== Program Methods ====================
 
-py::list BpfObject::get_program_names() const {
+py::list BpfObject::get_program_names() {
   if (!loaded_) {
     throw BpfException("BPF object not loaded");
   }
@@ -106,7 +106,7 @@ BpfObject::_get_or_create_program(struct bpf_program *prog) {
   }
 
   // Create and cache
-  auto bpf_prog = std::make_shared<BpfProgram>(this, prog, prog_name);
+  auto bpf_prog = std::make_shared<BpfProgram>(shared_from_this(), prog, prog_name);
   prog_cache_[prog_name] = bpf_prog;
 
   return bpf_prog;
@@ -125,7 +125,7 @@ std::shared_ptr<BpfProgram> BpfObject::get_program(const std::string &name) {
 
   // Create and cache
   struct bpf_program *raw_prog = find_program_by_name(name);
-  auto prog = std::make_shared<BpfProgram>(this, raw_prog, name);
+  auto prog = std::make_shared<BpfProgram>(shared_from_this(), raw_prog, name);
   prog_cache_[name] = prog;
 
   return prog;
@@ -148,8 +148,8 @@ BpfObject::find_program_by_name(const std::string &name) const {
 
 py::dict BpfObject::get_cached_programs() const {
   py::dict programs;
-  for (const auto &[name, prog] : prog_cache_) {
-    programs[name] = prog;
+  for (const auto &entry : prog_cache_) {
+    programs[entry.first.c_str()] = entry.second;
   }
   return programs;
 }
@@ -178,7 +178,7 @@ py::dict BpfObject::attach_all() {
 
 // ==================== Map Methods ====================
 
-py::list BpfObject::get_map_names() const {
+py::list BpfObject::get_map_names() {
   if (!loaded_) {
     throw BpfException("BPF object not loaded");
   }
@@ -249,8 +249,8 @@ struct bpf_map *BpfObject::find_map_by_name(const std::string &name) const {
 
 py::dict BpfObject::get_cached_maps() const {
   py::dict maps;
-  for (const auto &[name, map] : maps_cache_) {
-    maps[name] = map;
+  for (const auto &entry : maps_cache_) {
+    maps[entry.first.c_str()] = entry.second;
   }
   return maps;
 }

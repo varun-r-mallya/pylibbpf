@@ -65,7 +65,7 @@ public:
   py::dict attach_all();
 
   // Program access
-  [[nodiscard]] py::list get_program_names() const;
+  [[nodiscard]] py::list get_program_names();
   [[nodiscard]] std::shared_ptr<BpfProgram>
   get_program(const std::string &name);
   [[nodiscard]] struct bpf_program *
@@ -73,7 +73,7 @@ public:
   [[nodiscard]] py::dict get_cached_programs() const;
 
   // Map access
-  [[nodiscard]] py::list get_map_names() const;
+  [[nodiscard]] py::list get_map_names();
   [[nodiscard]] std::shared_ptr<BpfMap> get_map(const std::string &name);
   [[nodiscard]] struct bpf_map *find_map_by_name(const std::string &name) const;
   [[nodiscard]] py::dict get_cached_maps() const;
