@@ -1,6 +1,38 @@
 #include "bpf_perf_buffer.h"
 #include "bpf_exception.h"
 
+BpfPerfBuffer::BpfPerfBuffer(int map_fd, int page_cnt, py::function callback,
+                             py::object lost_callback)
+    : pb_(nullptr), callback_(std::move(callback)),
+      lost_callback_(lost_callback) {
+
+  if (page_cnt <= 0 || (page_cnt & (page_cnt - 1)) != 0) {
+    throw BpfException("page_cnt must be a positive power of 2");
+  }
+
+  struct perf_buffer_opts pb_opts = {};
+  pb_opts.sz = sizeof(pb_opts); // Required for forward compatibility
+
+  pb_ = perf_buffer__new(
+      map_fd, page_cnt,
+      sample_callback_wrapper,                                   // sample_cb
+      lost_callback.is_none() ? nullptr : lost_callback_wrapper, // lost_cb
+      this,                                                      // ctx
+      &pb_opts                                                   // opts
+  );
+
+  if (!pb_) {
+    throw BpfException("Failed to create perf buffer: " +
+                       std::string(std::strerror(errno)));
+  }
+}
+
+BpfPerfBuffer::~BpfPerfBuffer() {
+  if (pb_) {
+    perf_buffer__free(pb_);
+  }
+}
+
 void BpfPerfBuffer::sample_callback_wrapper(void *ctx, int cpu, void *data,
                                             unsigned int size) {
   auto *self = static_cast<BpfPerfBuffer *>(ctx);
@@ -33,33 +65,6 @@ void BpfPerfBuffer::lost_callback_wrapper(void *ctx, int cpu,
     self->lost_callback_(cpu, cnt);
   } catch (const py::error_already_set &e) {
     PyErr_Print();
-  }
-}
-
-BpfPerfBuffer::BpfPerfBuffer(int map_fd, int page_cnt, py::function callback,
-                             py::object lost_callback)
-    : pb_(nullptr), callback_(std::move(callback)) {
-
-  if (!lost_callback.is_none()) {
-    lost_callback_ = lost_callback.cast<py::function>();
-  }
-
-  // Setup perf buffer options
-  perf_buffer_opts pb_opts = {};
-  pb_opts.sample_cb = sample_callback_wrapper;
-  pb_opts.lost_cb = lost_callback.is_none() ? nullptr : lost_callback_wrapper;
-  pb_opts.ctx = this;
-
-  // Create perf buffer
-  pb_ = perf_buffer__new(map_fd, page_cnt, &pb_opts);
-  if (!pb_) {
-    throw BpfException("Failed to create perf buffer");
-  }
-}
-
-BpfPerfBuffer::~BpfPerfBuffer() {
-  if (pb_) {
-    perf_buffer__free(pb_);
   }
 }
 

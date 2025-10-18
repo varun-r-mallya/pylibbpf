@@ -20,11 +20,12 @@ private:
 
 public:
   BpfPerfBuffer(int map_fd, int page_cnt, py::function callback,
-                py::object lost_callback);
+                py::object lost_callback = py::none());
   ~BpfPerfBuffer();
 
   int poll(int timeout_ms);
   int consume();
+  [[nodiscard]] int fd() const;
 };
 
 #endif // PYLIBBPF_BPF_PERF_BUFFER_H
