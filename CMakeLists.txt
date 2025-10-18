@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 4.0)
 project(pylibbpf)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # pybind11
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(pybind11)
