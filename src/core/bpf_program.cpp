@@ -10,6 +10,8 @@ BpfProgram::BpfProgram(std::shared_ptr<BpfObject> parent, struct bpf_program *ra
       program_name_(program_name) {
     if (!parent)
 	throw BpfException("Parent BpfObject is null");
+    if(!(parent->is_loaded()))
+	throw BpfException("Parent BpfObject is not loaded");
     if (!raw_prog)
 	throw BpfException("bpf_program pointer is null");
 }
