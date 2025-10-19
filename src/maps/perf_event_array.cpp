@@ -81,7 +81,6 @@ void PerfEventArray::sample_callback_wrapper(void *ctx, int cpu, void *data,
   } catch (const py::error_already_set &e) {
     PyErr_Print();
   } catch (const std::exception &e) {
-    py::gil_scoped_acquire acquire;
     py::print("C++ error in perf callback:", e.what());
   }
 }
