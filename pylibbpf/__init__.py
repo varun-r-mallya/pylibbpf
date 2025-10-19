@@ -42,3 +42,5 @@ __all__ = [
     "StructParser",
     "BpfException",
 ]
+
+__version__ = "0.0.6"
