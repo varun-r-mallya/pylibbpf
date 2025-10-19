@@ -70,7 +70,8 @@ PYBIND11_MODULE(pylibbpf, m) {
       .def("get_value_size", &BpfMap::get_value_size)
       .def("get_max_entries", &BpfMap::get_max_entries)
       .def("__getitem__", &BpfMap::lookup, py::arg("key"))
-      .def("__setitem__", &BpfMap::update, py::arg("key"), py::arg("value"));
+      .def("__setitem__", &BpfMap::update, py::arg("key"), py::arg("value"))
+      .def("__delitem__", &BpfMap::delete_elem, py::arg("key"));
 
   // StructParser
   py::class_<StructParser>(m, "StructParser")
