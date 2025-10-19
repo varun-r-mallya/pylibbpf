@@ -72,4 +72,4 @@ private:
   static py::object bytes_to_python(std::span<const uint8_t> data);
 };
 
-#endif // PYLIBBPF_MAPS_H
+#endif // PYLIBBPF_BPF_MAP_H
