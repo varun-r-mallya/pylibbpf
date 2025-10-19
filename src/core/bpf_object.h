@@ -28,12 +28,13 @@ private:
   mutable std::unordered_map<std::string, std::shared_ptr<BpfMap>> maps_cache_;
   mutable std::unordered_map<std::string, std::shared_ptr<BpfProgram>>
       prog_cache_;
+  py::dict struct_defs_;
 
   std::shared_ptr<BpfProgram> _get_or_create_program(struct bpf_program *prog);
   std::shared_ptr<BpfMap> _get_or_create_map(struct bpf_map *map);
 
 public:
-  explicit BpfObject(std::string object_path);
+  explicit BpfObject(std::string object_path, py::dict structs = py::dict());
   ~BpfObject();
 
   // Disable copy, allow move

@@ -4,8 +4,9 @@
 #include "bpf_program.h"
 #include <cerrno>
 
-BpfObject::BpfObject(std::string object_path)
-    : obj_(nullptr), object_path_(std::move(object_path)), loaded_(false) {}
+BpfObject::BpfObject(std::string object_path, py::dict structs)
+    : obj_(nullptr), object_path_(std::move(object_path)), loaded_(false),
+      struct_defs_(structs) {}
 
 BpfObject::~BpfObject() {
   // Clear caches first (order matters!)
