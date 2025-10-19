@@ -1,14 +1,17 @@
 import logging
+
+from .ir_to_ctypes import convert_structs_to_ctypes, is_pythonbpf_structs
 from .pylibbpf import (
-    BpfObject as _BpfObject,  # C++ object (internal)
-    BpfProgram,
+    BpfException,
     BpfMap,
+    BpfProgram,
     PerfEventArray,
     StructParser,
-    BpfException,
+)
+from .pylibbpf import (
+    BpfObject as _BpfObject,  # C++ object (internal)
 )
 from .wrappers import BpfObjectWrapper
-from .ir_to_ctypes import convert_structs_to_ctypes, is_pythonbpf_structs
 
 logger = logging.getLogger(__name__)
 

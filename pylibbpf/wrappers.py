@@ -13,7 +13,7 @@ class PerfEventArrayHelper:
         callback: Callable,
         struct_name: str = "",
         page_cnt: int = 8,
-        lost_callback: Optional[Callable] = None
+        lost_callback: Optional[Callable] = None,
     ):
         """Open perf buffer with auto-deserialization."""
         from .pylibbpf import PerfEventArray
@@ -24,14 +24,11 @@ class PerfEventArrayHelper:
                 page_cnt,
                 callback,
                 struct_name,
-                lost_callback or (lambda cpu, cnt: None)
+                lost_callback or (lambda cpu, cnt: None),
             )
         else:
             self._perf_buffer = PerfEventArray(
-                self._map,
-                page_cnt,
-                callback,
-                lost_callback or (lambda cpu, cnt: None)
+                self._map, page_cnt, callback, lost_callback or (lambda cpu, cnt: None)
             )
 
         return self

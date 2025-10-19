@@ -10,7 +10,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(pybind11)
 pybind11_add_module(
   pylibbpf
-
   # Core
   src/core/bpf_program.h
   src/core/bpf_exception.h
@@ -19,15 +18,12 @@ pybind11_add_module(
   src/core/bpf_program.cpp
   src/core/bpf_map.cpp
   src/core/bpf_object.cpp
-
   # Maps
   src/maps/perf_event_array.h
   src/maps/perf_event_array.cpp
-
   # Utils
   src/utils/struct_parser.h
   src/utils/struct_parser.cpp
-
   # Bindings
   src/bindings/main.cpp)
 

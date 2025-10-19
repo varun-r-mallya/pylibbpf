@@ -1,7 +1,8 @@
 import ctypes
-from typing import Dict, Type
-from llvmlite import ir
 import logging
+from typing import Dict, Type
+
+from llvmlite import ir
 
 logger = logging.getLogger(__name__)
 
@@ -54,12 +55,18 @@ def convert_structs_to_ctypes(structs_sym_tab) -> Dict[str, Type[ctypes.Structur
             struct_class = type(
                 struct_name,
                 (ctypes.Structure,),
-                {'_fields_': fields, '__module__': 'pylibbpf.ir_to_ctypes', '__doc__': f'Auto-generated ctypes structure for {struct_name}',
-                 '__repr__': lambda self: (
-                    f"<{struct_name} " +
-                    " ".join(f"{name}={getattr(self, name)}" for name, _ in fields) +
-                    ">"
-                )}
+                {
+                    "_fields_": fields,
+                    "__module__": "pylibbpf.ir_to_ctypes",
+                    "__doc__": f"Auto-generated ctypes structure for {struct_name}",
+                    "__repr__": lambda self: (
+                        f"<{struct_name} "
+                        + " ".join(
+                            f"{name}={getattr(self, name)}" for name, _ in fields
+                        )
+                        + ">"
+                    ),
+                },
             )
 
             ctypes_structs[struct_name] = struct_class
@@ -80,9 +87,9 @@ def is_pythonbpf_structs(structs) -> bool:
 
     first_value = next(iter(structs.values()))
     return (
-        hasattr(first_value, 'ir_type') and
-        hasattr(first_value, 'fields') and
-        hasattr(first_value, 'size')
+        hasattr(first_value, "ir_type")
+        and hasattr(first_value, "fields")
+        and hasattr(first_value, "size")
     )
 
 
