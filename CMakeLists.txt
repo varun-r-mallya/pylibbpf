@@ -29,8 +29,7 @@ pybind11_add_module(
   src/utils/struct_parser.cpp
 
   # Bindings
-  src/bindings/main.cpp
-)
+  src/bindings/main.cpp)
 
 # --- libbpf build rules ---
 set(LIBBPF_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src)
