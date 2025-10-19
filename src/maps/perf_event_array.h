@@ -1,5 +1,5 @@
-#ifndef PYLIBBPF_BPF_PERF_BUFFER_H
-#define PYLIBBPF_BPF_PERF_BUFFER_H
+#ifndef PYLIBBPF_PERF_EVENT_ARRAY_H
+#define PYLIBBPF_PERF_EVENT_ARRAY_H
 
 #include <libbpf.h>
 #include <pybind11/functional.h>
@@ -7,11 +7,13 @@
 #include <string>
 
 class StructParser;
+class BpfMap;
 
 namespace py = pybind11;
 
 class PerfEventArray {
 private:
+  std::shared_ptr<BpfMap> map_;
   struct perf_buffer *pb_;
   py::function callback_;
   py::function lost_callback_;
@@ -25,13 +27,20 @@ private:
   static void lost_callback_wrapper(void *ctx, int cpu, unsigned long long cnt);
 
 public:
-  PerfEventArray(int map_fd, int page_cnt, py::function callback,
-                py::object lost_callback = py::none());
+  PerfEventArray(std::shared_ptr<BpfMap> map, int page_cnt,
+                 py::function callback, py::object lost_callback = py::none());
+  PerfEventArray(std::shared_ptr<BpfMap> map, int page_cnt,
+                 py::function callback, const std::string &struct_name,
+                 py::object lost_callback = py::none());
   ~PerfEventArray();
+
+  PerfEventArray(const PerfEventArray &) = delete;
+  PerfEventArray &operator=(const PerfEventArray &) = delete;
 
   int poll(int timeout_ms);
   int consume();
-  [[nodiscard]] int fd() const;
+
+  [[nodiscard]] std::shared_ptr<BpfMap> get_map() const { return map_; }
 };
 
-#endif // PYLIBBPF_BPF_PERF_BUFFER_H
+#endif // PYLIBBPF_PERF_EVENT_ARRAY_H
