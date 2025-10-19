@@ -89,13 +89,12 @@ void PerfEventArray::lost_callback_wrapper(void *ctx, int cpu,
                                            unsigned long long cnt) {
   auto *self = static_cast<PerfEventArray *>(ctx);
 
-  if (self->lost_callback_.is_none()) {
-    return;
-  }
-
   py::gil_scoped_acquire acquire;
 
   try {
+    if (self->lost_callback_.is_none()) {
+      return;
+    }
     self->lost_callback_(cpu, cnt);
   } catch (const py::error_already_set &e) {
     PyErr_Print();
