@@ -12,6 +12,7 @@ namespace py = pybind11;
 
 class BpfProgram;
 class BpfMap;
+class StructParser;
 
 /**
  * BpfObject - Represents a loaded BPF object file.
@@ -29,6 +30,7 @@ private:
   mutable std::unordered_map<std::string, std::shared_ptr<BpfProgram>>
       prog_cache_;
   py::dict struct_defs_;
+  mutable std::shared_ptr<StructParser> struct_parser_;
 
   std::shared_ptr<BpfProgram> _get_or_create_program(struct bpf_program *prog);
   std::shared_ptr<BpfMap> _get_or_create_map(struct bpf_map *map);
@@ -78,6 +80,10 @@ public:
   [[nodiscard]] std::shared_ptr<BpfMap> get_map(const std::string &name);
   [[nodiscard]] struct bpf_map *find_map_by_name(const std::string &name) const;
   [[nodiscard]] py::dict get_cached_maps() const;
+
+  // Struct parsing
+  [[nodiscard]] py::dict get_struct_defs() const { return struct_defs_; }
+  [[nodiscard]] std::shared_ptr<StructParser> get_struct_parser() const;
 };
 
 #endif // PYLIBBPF_BPF_OBJECT_H

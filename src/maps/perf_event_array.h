@@ -1,5 +1,5 @@
-#ifndef PYLIBBPF_PERF_EVENT_ARRAY_H
-#define PYLIBBPF_PERF_EVENT_ARRAY_H
+#ifndef PYLIBBPF_BPF_PERF_BUFFER_H
+#define PYLIBBPF_BPF_PERF_BUFFER_H
 
 #include <libbpf.h>
 #include <pybind11/functional.h>
@@ -34,4 +34,4 @@ public:
   [[nodiscard]] int fd() const;
 };
 
-#endif // PYLIBBPF_PERF_EVENT_ARRAY_H
+#endif // PYLIBBPF_BPF_PERF_BUFFER_H

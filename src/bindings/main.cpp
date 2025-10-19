@@ -10,7 +10,7 @@ extern "C" {
 #include "core/bpf_program.h"
 #include "core/bpf_exception.h"
 #include "core/bpf_map.h"
-#include "maps/bpf_perf_buffer.h"
+#include "maps/perf_event_array.h"
 
 namespace py = pybind11;
 
@@ -66,14 +66,14 @@ PYBIND11_MODULE(pylibbpf, m) {
         .def("get_value_size", &BpfMap::get_value_size)
         .def("get_max_entries", &BpfMap::get_max_entries);
 
-    py::class_<BpfPerfBuffer>(m, "BpfPerfBuffer")
+    py::class_<PerfEventArray>(m, "PerfEventArray")
             .def(py::init<int, int, py::function, py::object>(),
                  py::arg("map_fd"),
                  py::arg("page_cnt") = 8,
                  py::arg("callback"),
                  py::arg("lost_callback") = py::none())
-            .def("poll", &BpfPerfBuffer::poll, py::arg("timeout_ms") = -1)
-            .def("consume", &BpfPerfBuffer::consume);
+            .def("poll", &PerfEventArray::poll, py::arg("timeout_ms") = -1)
+            .def("consume", &PerfEventArray::consume);
 
 
 #ifdef VERSION_INFO

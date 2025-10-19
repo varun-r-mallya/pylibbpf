@@ -1,7 +1,7 @@
-#include "bpf_perf_buffer.h"
+#include "perf_event_array.h"
 #include "core/bpf_exception.h"
 
-BpfPerfBuffer::BpfPerfBuffer(int map_fd, int page_cnt, py::function callback,
+PerfEventArray::PerfEventArray(int map_fd, int page_cnt, py::function callback,
                              py::object lost_callback)
     : pb_(nullptr), callback_(std::move(callback)),
       lost_callback_(lost_callback) {
@@ -27,15 +27,15 @@ BpfPerfBuffer::BpfPerfBuffer(int map_fd, int page_cnt, py::function callback,
   }
 }
 
-BpfPerfBuffer::~BpfPerfBuffer() {
+PerfEventArray::~PerfEventArray() {
   if (pb_) {
     perf_buffer__free(pb_);
   }
 }
 
-void BpfPerfBuffer::sample_callback_wrapper(void *ctx, int cpu, void *data,
+void PerfEventArray::sample_callback_wrapper(void *ctx, int cpu, void *data,
                                             unsigned int size) {
-  auto *self = static_cast<BpfPerfBuffer *>(ctx);
+  auto *self = static_cast<PerfEventArray *>(ctx);
 
   // Acquire GIL for Python calls
   py::gil_scoped_acquire acquire;
@@ -51,9 +51,9 @@ void BpfPerfBuffer::sample_callback_wrapper(void *ctx, int cpu, void *data,
   }
 }
 
-void BpfPerfBuffer::lost_callback_wrapper(void *ctx, int cpu,
+void PerfEventArray::lost_callback_wrapper(void *ctx, int cpu,
                                           unsigned long long cnt) {
-  auto *self = static_cast<BpfPerfBuffer *>(ctx);
+  auto *self = static_cast<PerfEventArray *>(ctx);
 
   if (self->lost_callback_.is_none()) {
     return;
@@ -68,13 +68,13 @@ void BpfPerfBuffer::lost_callback_wrapper(void *ctx, int cpu,
   }
 }
 
-int BpfPerfBuffer::poll(int timeout_ms) {
+int PerfEventArray::poll(int timeout_ms) {
   // Release GIL during blocking poll
   py::gil_scoped_release release;
   return perf_buffer__poll(pb_, timeout_ms);
 }
 
-int BpfPerfBuffer::consume() {
+int PerfEventArray::consume() {
   py::gil_scoped_release release;
   return perf_buffer__consume(pb_);
 }

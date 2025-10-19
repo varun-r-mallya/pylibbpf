@@ -2,11 +2,12 @@
 #include "bpf_exception.h"
 #include "bpf_map.h"
 #include "bpf_program.h"
+#include "utils/struct_parser.h"
 #include <cerrno>
 
 BpfObject::BpfObject(std::string object_path, py::dict structs)
     : obj_(nullptr), object_path_(std::move(object_path)), loaded_(false),
-      struct_defs_(structs) {}
+      struct_defs_(structs), struct_parser_(nullptr) {}
 
 BpfObject::~BpfObject() {
   // Clear caches first (order matters!)
@@ -255,4 +256,12 @@ py::dict BpfObject::get_cached_maps() const {
     maps[entry.first.c_str()] = entry.second;
   }
   return maps;
+}
+
+std::shared_ptr<StructParser> BpfObject::get_struct_parser() const {
+    if (!struct_parser_ && !struct_defs_.empty()) {
+        // Create parser on first access
+        struct_parser_ = std::make_shared<StructParser>(struct_defs_);
+    }
+    return struct_parser_;
 }

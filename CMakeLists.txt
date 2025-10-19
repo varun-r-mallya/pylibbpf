@@ -21,8 +21,8 @@ pybind11_add_module(
   src/core/bpf_object.cpp
 
   # Maps
-  src/maps/bpf_perf_buffer.h
-  src/maps/bpf_perf_buffer.cpp
+  src/maps/perf_event_array.h
+  src/maps/perf_event_array.cpp
 
   # Utils
   src/utils/struct_parser.h
