@@ -14,12 +14,12 @@ pybind11_add_module(
   src/core/bpf_exception.h
   src/core/bpf_map.h
   src/core/bpf_object.h
-  src/core/bpf_perf_buffer.h
+  src/maps/bpf_perf_buffer.h
   src/bindings/main.cpp
   src/core/bpf_program.cpp
   src/core/bpf_map.cpp
   src/core/bpf_object.cpp
-  src/core/bpf_perf_buffer.cpp)
+  src/maps/bpf_perf_buffer.cpp)
 
 # --- libbpf build rules ---
 set(LIBBPF_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbpf/src)

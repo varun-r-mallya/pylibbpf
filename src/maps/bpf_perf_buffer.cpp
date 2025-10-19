@@ -1,5 +1,5 @@
 #include "bpf_perf_buffer.h"
-#include "bpf_exception.h"
+#include "core/bpf_exception.h"
 
 BpfPerfBuffer::BpfPerfBuffer(int map_fd, int page_cnt, py::function callback,
                              py::object lost_callback)

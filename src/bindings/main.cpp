@@ -10,7 +10,7 @@ extern "C" {
 #include "core/bpf_program.h"
 #include "core/bpf_exception.h"
 #include "core/bpf_map.h"
-#include "core/bpf_perf_buffer.h"
+#include "maps/bpf_perf_buffer.h"
 
 namespace py = pybind11;
 
