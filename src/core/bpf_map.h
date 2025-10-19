@@ -15,7 +15,7 @@ class BpfObject;
 
 namespace py = pybind11;
 
-class BpfMap {
+class BpfMap : public std::enable_shared_from_this<BpfMap> {
 private:
   std::weak_ptr<BpfObject> parent_obj_;
   struct bpf_map *map_;
@@ -62,6 +62,9 @@ public:
   [[nodiscard]] int get_key_size() const { return key_size_; };
   [[nodiscard]] int get_value_size() const { return value_size_; };
   [[nodiscard]] int get_max_entries() const;
+  [[nodiscard]] std::shared_ptr<BpfObject> get_parent() const {
+    return parent_obj_.lock();
+  }
 
 private:
   static void python_to_bytes_inplace(const py::object &obj,
