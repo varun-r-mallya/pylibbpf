@@ -38,6 +38,19 @@ def ir_type_to_ctypes(ir_type):
         raise TypeError(f"Unsupported IR type: {ir_type}")
 
 
+def _make_repr(struct_name: str, fields: list):
+    """Create a __repr__ function for a struct"""
+
+    def __repr__(self):
+        field_strs = []
+        for field_name, _ in fields:
+            value = getattr(self, field_name)
+            field_strs.append(f"{field_name}={value}")
+        return f"<{struct_name} {' '.join(field_strs)}>"
+
+    return __repr__
+
+
 def convert_structs_to_ctypes(structs_sym_tab) -> Dict[str, Type[ctypes.Structure]]:
     """Convert PythonBPF's structs_sym_tab to ctypes.Structure classes."""
     if not structs_sym_tab:
@@ -52,6 +65,8 @@ def convert_structs_to_ctypes(structs_sym_tab) -> Dict[str, Type[ctypes.Structur
                 field_ctypes = ir_type_to_ctypes(field_ir_type)
                 fields.append((field_name, field_ctypes))
 
+            repr_func = _make_repr(struct_name, fields)
+
             struct_class = type(
                 struct_name,
                 (ctypes.Structure,),
@@ -59,13 +74,7 @@ def convert_structs_to_ctypes(structs_sym_tab) -> Dict[str, Type[ctypes.Structur
                     "_fields_": fields,
                     "__module__": "pylibbpf.ir_to_ctypes",
                     "__doc__": f"Auto-generated ctypes structure for {struct_name}",
-                    "__repr__": lambda self: (
-                        f"<{struct_name} "
-                        + " ".join(
-                            f"{name}={getattr(self, name)}" for name, _ in fields
-                        )
-                        + ">"
-                    ),
+                    "__repr__": repr_func,
                 },
             )
 
