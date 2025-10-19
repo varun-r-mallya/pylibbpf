@@ -45,7 +45,7 @@ jobs:
       run: pip install --verbose .[test]
 
     - name: Test import
-      run: python -c "import pylibbpf; print('Import successful')"
+      run: python -I -c "import pylibbpf; print('Import successful')"
 
     - name: Test
-      run: python -m pytest -v
+      run: python -I -m pytest -v
