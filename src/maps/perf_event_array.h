@@ -17,7 +17,7 @@ private:
   std::shared_ptr<BpfMap> map_;
   struct perf_buffer *pb_;
   py::function callback_;
-  py::function lost_callback_;
+  py::object lost_callback_;
 
   std::shared_ptr<StructParser> parser_;
   std::string struct_name_;

@@ -7,7 +7,7 @@
 PerfEventArray::PerfEventArray(std::shared_ptr<BpfMap> map, int page_cnt,
                                py::function callback, py::object lost_callback)
     : map_(map), pb_(nullptr), callback_(std::move(callback)),
-      lost_callback_(lost_callback) {
+      lost_callback_(std::move(lost_callback)) {
 
   if (map->get_type() != BPF_MAP_TYPE_PERF_EVENT_ARRAY) {
     throw BpfException("Map '" + map->get_name() +
@@ -92,10 +92,12 @@ void PerfEventArray::lost_callback_wrapper(void *ctx, int cpu,
   py::gil_scoped_acquire acquire;
 
   try {
-    if (self->lost_callback_.is_none()) {
-      return;
+    if (!self->lost_callback_.is_none()) {
+      py::function lost_fn = py::cast<py::function>(self->lost_callback_);
+      lost_fn(cpu, cnt);
+    } else {
+      py::print("Lost", cnt, "events on CPU", cpu);
     }
-    self->lost_callback_(cpu, cnt);
   } catch (const py::error_already_set &e) {
     PyErr_Print();
   }
