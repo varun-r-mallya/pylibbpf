@@ -22,9 +22,14 @@ def ir_type_to_ctypes(ir_type):
 
     elif isinstance(ir_type, ir.ArrayType):
         count = ir_type.count
-        element_type = ir_type_to_ctypes(ir_type.element)
-        return element_type * count
+        element_type_ir = ir_type.element
 
+        if isinstance(element_type_ir, ir.IntType) and element_type_ir.width == 8:
+            # Use c_char for string fields (will have .decode())
+            return ctypes.c_char * count
+        else:
+            element_type = ir_type_to_ctypes(element_type_ir)
+            return element_type * count
     elif isinstance(ir_type, ir.PointerType):
         return ctypes.c_void_p
 
