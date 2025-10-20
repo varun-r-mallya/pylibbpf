@@ -2,10 +2,6 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-extern "C" {
-#include <libbpf.h>
-}
-
 #include "core/bpf_exception.h"
 #include "core/bpf_map.h"
 #include "core/bpf_object.h"
