@@ -3,7 +3,6 @@
 
 #include <libbpf.h>
 #include <memory>
-#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <string>
 

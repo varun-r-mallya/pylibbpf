@@ -1,8 +1,10 @@
-#include "perf_event_array.h"
+#include "maps/perf_event_array.h"
 #include "core/bpf_exception.h"
 #include "core/bpf_map.h"
 #include "core/bpf_object.h"
 #include "utils/struct_parser.h"
+#include <cerrno>
+#include <cstring>
 
 PerfEventArray::PerfEventArray(std::shared_ptr<BpfMap> map, int page_cnt,
                                py::function callback, py::object lost_callback)
