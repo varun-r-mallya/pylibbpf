@@ -4,6 +4,7 @@
 #include "bpf_program.h"
 #include "utils/struct_parser.h"
 #include <cerrno>
+#include <utility>
 
 BpfObject::BpfObject(std::string object_path, py::dict structs)
     : obj_(nullptr), object_path_(std::move(object_path)), loaded_(false),
@@ -22,9 +23,13 @@ BpfObject::~BpfObject() {
 }
 
 BpfObject::BpfObject(BpfObject &&other) noexcept
-    : obj_(other.obj_), object_path_(std::move(other.object_path_)),
-      loaded_(other.loaded_), prog_cache_(std::move(other.prog_cache_)),
-      maps_cache_(std::move(other.maps_cache_)) {
+    : obj_(std::exchange(other.obj_, nullptr)),
+      object_path_(std::move(other.object_path_)),
+      loaded_(std::exchange(other.loaded_, false)),
+      maps_cache_(std::move(other.maps_cache_)),
+      prog_cache_(std::move(other.prog_cache_)),
+      struct_defs_(std::move(other.struct_defs_)),
+      struct_parser_(std::move(other.struct_parser_)) {
 
   other.obj_ = nullptr;
   other.loaded_ = false;
@@ -38,14 +43,13 @@ BpfObject &BpfObject::operator=(BpfObject &&other) noexcept {
       bpf_object__close(obj_);
     }
 
-    obj_ = other.obj_;
+    obj_ = std::exchange(other.obj_, nullptr);
     object_path_ = std::move(other.object_path_);
-    loaded_ = other.loaded_;
-    prog_cache_ = std::move(other.prog_cache_);
+    loaded_ = std::exchange(other.loaded_, false);
     maps_cache_ = std::move(other.maps_cache_);
-
-    other.obj_ = nullptr;
-    other.loaded_ = false;
+    prog_cache_ = std::move(other.prog_cache_);
+    struct_defs_ = std::move(other.struct_defs_);
+    struct_parser_ = std::move(other.struct_parser_);
   }
   return *this;
 }
