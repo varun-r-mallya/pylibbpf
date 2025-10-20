@@ -4,12 +4,13 @@ requires = [
     "wheel",
     "ninja",
     "cmake>=4.0",
+    "pybind11>=2.10",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pylibbpf"
-version = "0.0.5"
+version = "0.0.6"
 description = "Python Bindings for Libbpf"
 authors = [
     { name = "r41k0u", email = "pragyanshchaturvedi18@gmail.com" },
@@ -32,14 +33,17 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Operating System Kernels :: Linux",
 ]
+dependencies = [
+    "llvmlite>=0.40.0",
+]
 
 [project.optional-dependencies]
 test = ["pytest>=6.0"]
 
 [project.urls]
-Homepage = "https://github.com/varun-r-mallya/pylibbpf"
-Repository = "https://github.com/varun-r-mallya/pylibbpf"
-Issues = "https://github.com/varun-r-mallya/pylibbpf/issues"
+Homepage = "https://github.com/pythonbpf/pylibbpf"
+Repository = "https://github.com/pythonbpf/pylibbpf"
+Issues = "https://github.com/pythonbpf/pylibbpf/issues"
 
 [tool.mypy]
 files = "setup.py"

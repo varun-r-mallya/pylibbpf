@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from setuptools import Extension, setup
+from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
@@ -129,8 +129,11 @@ setup(
     description="Python Bindings for Libbpf",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/varun-r-mallya/pylibbpf",
-    ext_modules=[CMakeExtension("pylibbpf")],
+    url="https://github.com/pythonbpf/pylibbpf",
+    packages=find_packages(where="."),
+    package_dir={"": "."},
+    py_modules=[],  # Empty since we use packages
+    ext_modules=[CMakeExtension("pylibbpf.pylibbpf")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     classifiers=[
@@ -147,6 +150,16 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Operating System Kernels :: Linux",
     ],
+    install_requires=[
+        "llvmlite>=0.40.0",  # Required for struct conversion
+    ],
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.8",
+    package_data={
+        "pylibbpf": [
+            "*.py",
+            "py.typed",  # For type hints
+        ],
+    },
+    include_package_data=True,
 )

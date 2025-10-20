@@ -1,84 +1,74 @@
-#include "bpf_program.h"
-#include "bpf_exception.h"
-#include <filesystem>
+#include "core/bpf_program.h"
+#include "core/bpf_exception.h"
+#include "core/bpf_object.h"
+#include <cerrno>
+#include <cstring>
 #include <utility>
 
-BpfProgram::BpfProgram(std::string object_path, std::string program_name)
-    : obj_(nullptr), prog_(nullptr), link_(nullptr),
-      object_path_(std::move(object_path)), program_name_(std::move(program_name)) {
+BpfProgram::BpfProgram(std::shared_ptr<BpfObject> parent,
+                       struct bpf_program *raw_prog,
+                       const std::string &program_name)
+    : parent_obj_(parent), prog_(raw_prog), link_(nullptr),
+      program_name_(program_name) {
+  if (!parent)
+    throw BpfException("Parent BpfObject is null");
+  if (!(parent->is_loaded()))
+    throw BpfException("Parent BpfObject is not loaded");
+  if (!raw_prog)
+    throw BpfException("bpf_program pointer is null");
 }
 
-BpfProgram::~BpfProgram() {
-    destroy();
-    if (obj_) {
-        bpf_object__close(obj_);
-    }
+BpfProgram::~BpfProgram() { detach(); }
+
+BpfProgram::BpfProgram(BpfProgram &&other) noexcept
+    : parent_obj_(std::move(other.parent_obj_)), prog_(other.prog_),
+      link_(other.link_), program_name_(std::move(other.program_name_)) {
+
+  other.prog_ = nullptr;
+  other.link_ = nullptr;
 }
 
-struct bpf_object * BpfProgram::get_obj() const {
-    return obj_;
+BpfProgram &BpfProgram::operator=(BpfProgram &&other) noexcept {
+  if (this != &other) {
+    detach();
+
+    parent_obj_ = std::move(other.parent_obj_);
+    prog_ = other.prog_;
+    link_ = other.link_;
+    program_name_ = std::move(other.program_name_);
+
+    other.prog_ = nullptr;
+    other.link_ = nullptr;
+  }
+  return *this;
 }
 
-bool BpfProgram::load() {
-    // Open the eBPF object file
-    obj_ = bpf_object__open_file(object_path_.c_str(), nullptr);
-    if (libbpf_get_error(obj_)) {
-        throw BpfException("Failed to open BPF object file: " + object_path_);
-    }
+void BpfProgram::attach() {
+  // Check if parent is still alive
+  auto parent = parent_obj_.lock();
+  if (!parent) {
+    throw BpfException("Parent BpfObject has been destroyed");
+  }
 
-    // Find the program by name (if specified)
-    if (!program_name_.empty()) {
-        prog_ = bpf_object__find_program_by_name(obj_, program_name_.c_str());
-        if (!prog_) {
-            throw BpfException("Program '" + program_name_ + "' not found in object");
-        }
-    } else {
-        while ((prog_ = bpf_object__next_program(obj_, prog_)) != nullptr) {
-            programs.emplace_back(prog_, nullptr);
-        }
+  if (link_) {
+    throw BpfException("Program '" + program_name_ + "' already attached");
+  }
 
-        // throw if no programs found
-        if (programs.empty()) {
-            throw BpfException("No programs found in object file");
-        }
-    }
+  if (!prog_) {
+    throw BpfException("Program '" + program_name_ + "' not initialized");
+  }
 
-    // Load the eBPF object into the kernel
-    if (bpf_object__load(obj_)) {
-        throw BpfException("Failed to load BPF object into kernel");
-    }
-
-    return true;
+  link_ = bpf_program__attach(prog_);
+  if (!link_) {
+    std::string err_msg = "bpf_program__attach failed for program '" +
+                          program_name_ + "': " + std::strerror(errno);
+    throw BpfException(err_msg);
+  }
 }
 
-bool BpfProgram::attach() {
-    for (auto [prog, link]: programs) {
-        if (!prog) {
-            throw BpfException("Program not loaded");
-        }
-
-        link = bpf_program__attach(prog);
-        if (libbpf_get_error(link)) {
-            link = nullptr;
-            throw BpfException("Failed to attach BPF program");
-        }
-    }
-
-    return true;
-}
-
-bool BpfProgram::destroy() {
-    bool success = true;
-    for (auto [prog, link]: programs) {
-        if (!prog) {
-            throw BpfException("Program not loaded");
-        }
-        success = success & bpf_link__destroy(link);
-    }
-    return success;
-}
-
-void BpfProgram::load_and_attach() {
-    load();
-    attach();
+void BpfProgram::detach() {
+  if (link_) {
+    bpf_link__destroy(link_);
+    link_ = nullptr;
+  }
 }

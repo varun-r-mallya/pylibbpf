@@ -1,9 +1,10 @@
 import time
 from ctypes import c_int32, c_int64, c_uint64, c_void_p
 
-from pylibbpf import BpfMap
 from pythonbpf import BPF, bpf, bpfglobal, map, section
 from pythonbpf.maps import HashMap
+
+from pylibbpf import BpfMap
 
 
 @bpf
