@@ -1,7 +1,8 @@
-#include "bpf_program.h"
-#include "bpf_exception.h"
-#include "bpf_object.h"
+#include "core/bpf_program.h"
+#include "core/bpf_exception.h"
+#include "core/bpf_object.h"
 #include <cerrno>
+#include <cstring>
 #include <utility>
 
 BpfProgram::BpfProgram(std::shared_ptr<BpfObject> parent,
