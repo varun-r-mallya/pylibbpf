@@ -1,9 +1,10 @@
-#include "bpf_object.h"
-#include "bpf_exception.h"
-#include "bpf_map.h"
-#include "bpf_program.h"
+#include "core/bpf_object.h"
+#include "core/bpf_exception.h"
+#include "core/bpf_map.h"
+#include "core/bpf_program.h"
 #include "utils/struct_parser.h"
 #include <cerrno>
+#include <cstring>
 #include <utility>
 
 BpfObject::BpfObject(std::string object_path, py::dict structs)
@@ -263,9 +264,9 @@ py::dict BpfObject::get_cached_maps() const {
 }
 
 std::shared_ptr<StructParser> BpfObject::get_struct_parser() const {
-    if (!struct_parser_ && !struct_defs_.empty()) {
-        // Create parser on first access
-        struct_parser_ = std::make_shared<StructParser>(struct_defs_);
-    }
-    return struct_parser_;
+  if (!struct_parser_ && !struct_defs_.empty()) {
+    // Create parser on first access
+    struct_parser_ = std::make_shared<StructParser>(struct_defs_);
+  }
+  return struct_parser_;
 }
