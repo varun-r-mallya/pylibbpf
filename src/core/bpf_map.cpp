@@ -1,6 +1,6 @@
-#include "bpf_map.h"
-#include "bpf_exception.h"
-#include "bpf_object.h"
+#include "core/bpf_map.h"
+#include "core/bpf_exception.h"
+#include "core/bpf_object.h"
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
