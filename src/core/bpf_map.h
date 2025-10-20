@@ -1,10 +1,7 @@
 #ifndef PYLIBBPF_BPF_MAP_H
 #define PYLIBBPF_BPF_MAP_H
 
-#include <algorithm>
 #include <array>
-#include <cerrno>
-#include <cstring>
 #include <libbpf.h>
 #include <pybind11/pybind11.h>
 #include <span>

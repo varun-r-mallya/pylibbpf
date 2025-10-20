@@ -1,6 +1,9 @@
 #include "bpf_map.h"
 #include "bpf_exception.h"
 #include "bpf_object.h"
+#include <algorithm>
+#include <cerrno>
+#include <cstring>
 
 BpfMap::BpfMap(std::shared_ptr<BpfObject> parent, struct bpf_map *raw_map,
                const std::string &map_name)
