@@ -25,7 +25,7 @@ jobs:
     - name: Check metadata
       run: pipx run twine check dist/*
 
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v7
       with:
         name: cibw-sdist
         path: dist/*.tar.gz
@@ -44,7 +44,7 @@ jobs:
         submodules: recursive
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v3.3
+      uses: pypa/cibuildwheel@v3.4
       env:
         CIBW_PLATFORM: linux
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
@@ -65,7 +65,7 @@ jobs:
       shell: bash
 
     - name: Upload wheels
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: cibw-wheels-linux-${{ matrix.arch }}
         path: wheelhouse/*.whl
@@ -82,7 +82,7 @@ jobs:
 
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         pattern: cibw-*
         path: dist
